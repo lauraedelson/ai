@@ -219,10 +219,13 @@ int main(int argc, char* argv[])
 			else
 				output << "F" << endl;
 		}
-		output << "Keys:" << endl;
-		for (string key : keys) {
-			output << key << endl;
-		}
+	}
+	else {
+		output << "no solution" << endl;
+	}
+	output << "Keys:" << endl;
+	for (string key : keys) {
+		output << key << endl;
 	}
 	output.close();
 }
