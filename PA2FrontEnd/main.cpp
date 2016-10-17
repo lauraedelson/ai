@@ -1,7 +1,6 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <algorithm>
 #include <iterator>
 #include <vector>
 #include <map>
@@ -22,47 +21,7 @@ struct atoms
 	vector<pair<string, int>> availables;
 };
 
-//OLD WAY
-/*atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps, vector<string> stuff, vector<string> treasures) {
-	atoms currAtoms;
-	Node currNode = nodes[node_name];
-	currAtoms.ats.insert(make_pair( currNode.getName(), steps));
-	for (string treasure : treasures) {
-		currAtoms.availables.insert(make_pair( treasure, steps));
-	}
-	for (string thing : currNode.getTreasures()) {
-		vector<string>::iterator treasure_iter = find(treasures.begin(), treasures.end(), thing);
-		if (treasure_iter != treasures.end()) {
-			stuff.push_back(thing);
-			treasures.erase(find(treasures.begin(), treasures.end(), thing));
-		}
-	}
-	for (string mything : stuff) {
-		currAtoms.hass.insert(make_pair( mything, steps));
-	}
-	for (string thing : currNode.getTolls()) {
-		vector<string>::iterator result = find(stuff.begin(), stuff.end(), thing);
-		if (result == stuff.end()) {
-			return currAtoms;
-		}
-		else {
-			stuff.erase(result);
-		}
-	}
-
-	if (steps < 1) {
-		return currAtoms;
-	}
-
-	for (string child : nodes[node_name].getNeighbors()) {
-		atoms child_atoms = build_atoms(nodes, child, steps - 1, stuff, treasures);
-		currAtoms.ats.insert(child_atoms.ats.begin(), child_atoms.ats.end());
-		currAtoms.hass.insert(child_atoms.hass.begin(), child_atoms.hass.end());
-		currAtoms.availables.insert(child_atoms.availables.begin(), child_atoms.availables.end());
-	}
-	return currAtoms;
-}*/
-
+//child method for build_atoms recursion
 atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps) {
 	atoms currAtoms;
 	Node currNode = nodes[node_name];
@@ -79,9 +38,10 @@ atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps) {
 	return currAtoms;
 }
 
+//given a start node and a collection of treasures, build all the atoms
 atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps, vector<string>& treasures) {
 	atoms currAtoms;
-	for (string treasure : treasures) {
+	for (auto treasure : treasures) {
 		for (size_t step = 0; step <= steps; step++) {
 			currAtoms.availables.push_back(make_pair(treasure, step));
 			currAtoms.hass.push_back(make_pair(treasure, step));
@@ -95,18 +55,19 @@ atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps, vect
 		return currAtoms;
 	}
 
-	for (string child : nodes[node_name].getNeighbors()) {
+	for (auto child : nodes[node_name].getNeighbors()) {
 		atoms child_atoms = build_atoms(nodes, child, steps - 1);
 		currAtoms.ats.insert(child_atoms.ats.begin(), child_atoms.ats.end());
 	}
 	return currAtoms;
 }
 
+//given a space delimited string, return a vector of the parts
 vector<string> tokenize(string input) {
 	stringstream ss(input);
-	istream_iterator<std::string> begin(ss);
-	istream_iterator<std::string> end;
-	vector<std::string> vstrings(begin, end);
+	istream_iterator<string> begin(ss);
+	istream_iterator<string> end;
+	vector<string> vstrings(begin, end);
 	return vstrings;
 }
 
@@ -160,9 +121,7 @@ vector<string> tokenize(string input) {
 				}
 
 				Node newNode = Node(name, nodeTreasures, nodeTolls, connections);
-
 				nodes.insert(pair<string, Node>(name, newNode));
-
 			}
 			inputFile.close();
 		}
@@ -286,9 +245,6 @@ vector<string> tokenize(string input) {
 					}
 				}
 			}
-
-			//write key
-			//keys.push_back(to_string(i) + " " + HAS + " " + curr_treasure + " " + to_string(curr_step));
 		}
 		for (i; i < at_vec.size() + has_vec.size() + avail_vec.size(); i++) {
 			size_t index = i - (at_vec.size() + has_vec.size());
@@ -328,8 +284,6 @@ vector<string> tokenize(string input) {
 			if (curr_step == 0) {
 				prepositions.insert(to_string(i));
 			}
-			//write key
-			//keys.push_back(to_string(i) + " " + AVAILABLE + " " + curr_treasure + " " + to_string(curr_step));
 		}
 		//write to output
 		ofstream output;

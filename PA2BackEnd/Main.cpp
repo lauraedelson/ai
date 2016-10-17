@@ -1,24 +1,23 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <algorithm>
 #include <iterator>
 #include <vector>
 #include <map>
-#include <set>
 #include <sstream>
 
 using namespace std;
 
+//Given a space delimited string, return a vector of the parts
 vector<string> tokenize(string input) {
 	stringstream ss(input);
-	istream_iterator<std::string> begin(ss);
-	istream_iterator<std::string> end;
-	vector<std::string> vstrings(begin, end);
+	istream_iterator<string> begin(ss);
+	istream_iterator<string> end;
+	vector<string> vstrings(begin, end);
 	return vstrings;
 }
 
-
+//Read in output of PA2DavisPutnam and output solution path
 int main(int argc, char* argv[])
 {
 	if (argc < 2) {
@@ -63,7 +62,7 @@ int main(int argc, char* argv[])
 	}
 	inputFile.close();
 
-	//find path
+	//find solution path
 	map<size_t, string> solution;
 	for (auto curr : key) {
 		if (values[curr.first]) {

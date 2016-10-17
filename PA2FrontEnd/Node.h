@@ -4,6 +4,8 @@
 #include <vector>
 
 using namespace std;
+
+//Storage class to hold data about maze nodes
 class Node
 {
 public:

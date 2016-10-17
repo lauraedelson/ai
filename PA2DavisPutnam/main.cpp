@@ -1,7 +1,6 @@
 #include <fstream>
 #include <string>
 #include <iostream>
-#include <algorithm>
 #include <iterator>
 #include <vector>
 #include <map>
@@ -10,18 +9,20 @@
 
 using namespace std;
 
+//given a space delimited string, return a vector of the parts
 vector<string> tokenize(string input) {
 	stringstream ss(input);
-	istream_iterator<std::string> begin(ss);
-	istream_iterator<std::string> end;
-	vector<std::string> vstrings(begin, end);
+	istream_iterator<string> begin(ss);
+	istream_iterator<string> end;
+	vector<string> vstrings(begin, end);
 	return vstrings;
 }
 
+//typedefs to make everything more readable
 typedef pair<string, bool> literal;
-
 typedef vector<literal> clause;
 
+//return a set of clauses with the curr literal applied to the set of clauses passed in 
 vector<clause> propagate(vector<clause> clauses, literal currLiteral) {
 	vector<int> toRemove;
 	for (size_t i = 0; i < clauses.size(); i++) {
