@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 #include "Node.h"
 
@@ -168,7 +169,8 @@ vector<string> tokenize(string input) {
 				if (*name != curr_name) {
 					vector<pair<string, int>>::iterator at_it = find(at_vec.begin() + i, at_vec.end(), make_pair(*name, steps - curr_step));
 					if (at_it != at_vec.end()) {
-						prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)));
+						int statement_id = i;
+						prepositions.insert("-" + to_string((long long unsigned int)statement_id) + " -" + to_string((long long unsigned int)distance(at_vec.begin(), at_it)));
 					}
 				}
 			}
@@ -179,26 +181,26 @@ vector<string> tokenize(string input) {
 			for (vector<string>::iterator neighbor_name = neighbors.begin(); neighbor_name != neighbors.end(); neighbor_name++) {
 				vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(*neighbor_name, (steps - curr_step) + 1));
 				if (at_it != at_vec.end()) {
-					statement.append(to_string(distance(at_vec.begin(), at_it)) + " ");
+					statement.append(to_string((long long unsigned int)distance(at_vec.begin(), at_it)) + " ");
 				}
 			}
 			if (!statement.empty()) {
-				statement.append("-" + to_string(i));
+				statement.append("-" + to_string((long long unsigned int)i));
 				prepositions.insert(statement);
 			}
 
 			//11 - player at start at time 0
 			if (curr_name == startNode && curr_step == 0) {
-				prepositions.insert(to_string(i));
+				prepositions.insert(to_string((long long unsigned int)i));
 			}
 
 			//13 - player at goal at finish
 			if (curr_name == goalNode && curr_step == steps) {
-				prepositions.insert(to_string(i));
+				prepositions.insert(to_string((long long unsigned int)i));
 			}
 
 			//write key
-			keys.push_back(to_string(i) +" " + curr_name + " " + to_string(curr_step));
+			keys.push_back(to_string((long long unsigned int)i) +" " + curr_name + " " + to_string((long long unsigned int)curr_step));
 
 		}
 		for (i; i < at_vec.size() + has_vec.size(); i++ ) {
@@ -208,7 +210,7 @@ vector<string> tokenize(string input) {
 			//2 - if a player has an item, at the time he has it, it is not available
 			vector<pair<string, int>>::iterator it = find(avail_vec.begin(), avail_vec.end(), make_pair(curr_treasure, curr_step));
 			if (it != avail_vec.end()) {
-				prepositions.insert("-" + to_string(i) + " " + "-" + to_string(distance(avail_vec.begin(), it) + at_vec.size() + has_vec.size()));
+				prepositions.insert("-" + to_string((long long unsigned int)i) + " " + "-" + to_string((long long unsigned int)distance(avail_vec.begin(), it) + at_vec.size() + has_vec.size()));
 			}
 
 			for (map<string, Node>::iterator curr_node = nodes.begin(); curr_node != nodes.end(); curr_node++) {
@@ -216,13 +218,13 @@ vector<string> tokenize(string input) {
 					//6 - If node N has toll T and the player is at N at time I, then the player no longer has T at time I. 
 					vector<pair<string, int>>::iterator at_now_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - curr_step));
 					if (at_now_it != at_vec.end()) {
-						prepositions.insert("-" + to_string(distance(at_vec.begin(), at_now_it)) + " -" + to_string(i));
+						prepositions.insert("-" + to_string((long long unsigned int)distance(at_vec.begin(), at_now_it)) + " -" + to_string((long long unsigned int)i));
 					}
 
 					//4 - If node N has toll T and the player is at N at time I+1, then the player must have T at time I
 					vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 					if (at_it != at_vec.end()) {
-						prepositions.insert("-" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(i));
+						prepositions.insert("-" + to_string((long long unsigned int)distance(at_vec.begin(), at_it)) + " " + to_string((long long unsigned int)i));
 					}
 				}
 			}
@@ -235,7 +237,7 @@ vector<string> tokenize(string input) {
 
 				//9 - If treasure T has been spend at time I, then the player does not have it at time I+1.
 				if (available_it != avail_vec.end()) {
-					prepositions.insert(to_string(distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()) + " " + to_string(i) + " -" + to_string(distance(has_vec.begin(), has_it) + at_vec.size()));
+					prepositions.insert(to_string((long long unsigned int)distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()) + " " + to_string((long long unsigned int)i) + " -" + to_string((long long unsigned int)distance(has_vec.begin(), has_it) + at_vec.size()));
 				}
 
 				//10 - If the player has treasure T at time I and is at node N at time I+1, and N does not require T as a toll, then the player still has T at I+1. 
@@ -243,11 +245,12 @@ vector<string> tokenize(string input) {
 					if (curr_node->second.getTreasures().find(curr_treasure) != curr_node->second.getTreasures().end()) {
 						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
-							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(distance(has_vec.begin(), has_it) + at_vec.size()));
+							prepositions.insert("-" + to_string((long long unsigned int)i) + " -" + to_string((long long unsigned int)distance(at_vec.begin(), at_it)) + " " + to_string((long long unsigned int)distance(has_vec.begin(), has_it) + at_vec.size()));
 						}
 					}
 				}
 			}
+
 		}
 		for (i; i < at_vec.size() + has_vec.size() + avail_vec.size(); i++) {
 			size_t index = i - (at_vec.size() + has_vec.size());
@@ -261,7 +264,7 @@ vector<string> tokenize(string input) {
 					if (curr_node->second.getTreasures().find(curr_treasure) != curr_node->second.getTreasures().end()) {
 						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
-							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it )) + " " + to_string(distance(has_vec.begin(), has_it) + at_vec.size()));
+							prepositions.insert("-" + to_string((long long unsigned int)i) + " -" + to_string((long long unsigned int)distance(at_vec.begin(), at_it )) + " " + to_string((long long unsigned int)distance(has_vec.begin(), has_it) + at_vec.size()));
 						}
 					}
 				}
@@ -276,17 +279,17 @@ vector<string> tokenize(string input) {
 					if (currTreasures.find(curr_treasure) == currTreasures.end()) {
 						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
-							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()));
+							prepositions.insert("-" + to_string((long long unsigned int)i) + " -" + to_string((long long unsigned int)distance(at_vec.begin(), at_it)) + " " + to_string((long long unsigned int)distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()));
 						}
 					}
 				}
 				//8 - If treasure T is not available at time I, then it is not available at time I+1
-				prepositions.insert(to_string(i) + " -" + to_string(distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()));
+				prepositions.insert(to_string((long long unsigned int)i) + " -" + to_string((long long unsigned int)distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()));
 			}
 			
 			//12 - treasures all available at time 0
 			if (curr_step == 0) {
-				prepositions.insert(to_string(i));
+				prepositions.insert(to_string((long long unsigned int)i));
 			}
 		}
 		//write to output

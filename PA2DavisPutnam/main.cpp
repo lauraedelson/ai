@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 #include <sstream>
+#include <algorithm>:q!
+
 
 using namespace std;
 
@@ -230,7 +232,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	else {
-		output << "no solution" << endl;
+		output << "0" << endl;
 	}
 	output << "Keys:" << endl;
 	for (vector<string>::iterator key = keys.begin(); key != keys.end(); key++) {

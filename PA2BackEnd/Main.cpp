@@ -64,9 +64,9 @@ int main(int argc, char* argv[])
 
 	//find solution path
 	map<size_t, string> solution;
-	for (auto curr : key) {
-		if (values[curr.first]) {
-			solution[curr.second.second] = curr.second.first;
+	for (auto curr = key.begin(); curr != key.end(); curr++) {
+		if (values[curr->first]) {
+			solution[curr->second.second] = curr->second.first;
 		}
 	}
 
@@ -78,8 +78,8 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	for (auto step : solution) {
-		output << "Step " << to_string(step.first) << ": Node " << step.second << endl;
+	for (auto step = solution.begin(); step != solution.end(); step++) {
+		output << "Step " << to_string((long long unsigned int)step->first) << ": Node " << step->second << endl;
 	}
 	output.close();
 }
