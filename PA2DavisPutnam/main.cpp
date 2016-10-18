@@ -75,9 +75,9 @@ map<string, bool> dp1(vector<clause> clauses, map<string, bool> atoms) {
 			if (clauses.empty())
 				return atoms;
 
-			for (clause currClause : clauses) {
+			for (vector<clause>::iterator currClause = clauses.begin(); currClause != clauses.end();  currClause++) {
 				//if any clause is empty, we failed
-				if (currClause.empty()) {
+				if (currClause->empty()) {
 					return map<string, bool>();
 				}
 			}
