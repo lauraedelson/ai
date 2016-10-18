@@ -183,15 +183,15 @@ int main(int argc, char* argv[])
 			else {
 				vector<string> parts = tokenize(line);
 				clause newClause;
-				for (string part : parts) {
+				for (vector<string>::iterator part = parts.begin(); part != parts.end(); part++) {
 					string symbol;
 					bool sign = true;
-					if (part[0] == '-') {
+					if (part->at(0) == '-') {
 						sign = false;
-						symbol = part.substr(1);
+						symbol = part->substr(1);
 					}
 					else {
-						symbol = part;
+						symbol = *part;
 					}
 					literal newLit = make_pair(symbol, sign);
 					newClause.push_back(newLit);
@@ -214,9 +214,9 @@ int main(int argc, char* argv[])
 
 	map<string, bool> atoms = dp(clauses);
 	if (!atoms.empty()) {
-		for (auto& x : atoms) {
-			output << x.first << " ";
-			if (x.second)
+		for (map<string, bool>::iterator x = atoms.begin(); x != atoms.end(); x++) {
+			output << x->first << " ";
+			if (x->second)
 				output << "T" << endl;
 			else
 				output << "F" << endl;
@@ -226,8 +226,8 @@ int main(int argc, char* argv[])
 		output << "no solution" << endl;
 	}
 	output << "Keys:" << endl;
-	for (string key : keys) {
-		output << key << endl;
+	for (vector<string>::iterator key = keys.begin(); key != keys.end(); key++) {
+		output << *key << endl;
 	}
 	output.close();
 }
