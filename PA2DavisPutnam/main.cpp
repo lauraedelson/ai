@@ -48,29 +48,30 @@ map<string, bool> dp1(vector<clause> clauses, map<string, bool> atoms) {
 		}
 
 		vector<clause> candidates;
-		for (clause currClause : clauses) {
+		for (vector<clause>::iterator currClause = clauses.begin(); currClause != clauses.end();  currClause++) {
 			//if any clause is empty, we failed
-			if (currClause.empty()) {
+			if (currClause->empty()) {
 				return map<string, bool>();
 			}
 
 			//look for a forced assignment
-			if (currClause.size() == 1) {
-				candidates.push_back(currClause);
+			if (currClause->size() == 1) {
+				candidates.push_back(*currClause);
 
 			}
 		}
  
 		//do any forced assignments
-		for (clause candidate : candidates) {
+		for (vector<clause>::iterator candidate = candidates.begin(); candidate != candidates.end(); candidate++) {
 			easyFound = true;
-			if (atoms.find(candidate[0].first) != atoms.end()) {
+			clause currCandidate = *candidate;
+			if (atoms.find(currCandidate[0].first) != atoms.end()) {
 				cout << "ERROR!" << endl;
 				exit(EXIT_FAILURE);
 			}
 
-			atoms[candidate[0].first] = candidate[0].second;
-			clauses = propagate(clauses, candidate[0]);
+			atoms[currCandidate[0].first] = currCandidate[0].second;
+			clauses = propagate(clauses, currCandidate[0]);
 			if (clauses.empty())
 				return atoms;
 
@@ -86,37 +87,37 @@ map<string, bool> dp1(vector<clause> clauses, map<string, bool> atoms) {
 		//look for a pure literal
 		set<literal> literals;
 		set<literal> nope;
-		for (clause currClause : clauses) {
-			for (literal currLiteral : currClause) {
-				set<literal>::iterator set_it = literals.find(make_pair(currLiteral.first, !currLiteral.second));
+		for (vector<clause>::iterator currClause = clauses.begin(); currClause != clauses.end();  currClause++) {
+			for (vector<literal>::iterator currLiteral = currClause->begin(); currLiteral != currClause->end(); currLiteral++) {
+				set<literal>::iterator set_it = literals.find(make_pair(currLiteral->first, !currLiteral->second));
 				if (set_it != literals.end()) {
-					nope.insert(currLiteral);
+					nope.insert(*currLiteral);
 					nope.insert(make_pair(set_it->first, set_it->second));
 					literals.erase(set_it);
 				}
 				else {
-					set<literal>::iterator nope_it = nope.find(currLiteral);
+					set<literal>::iterator nope_it = nope.find(*currLiteral);
 					if (nope_it == nope.end()) {
-						literals.insert(currLiteral);
+						literals.insert(*currLiteral);
 					}
 				}
 			}
 		}
-		for (literal currLiteral : literals) {
+		for (set<literal>::iterator currLiteral = literals.begin(); currLiteral != literals.end(); currLiteral++) {
 			easyFound = true;
-			if (atoms.find(currLiteral.first) != atoms.end()) {
+			if (atoms.find(currLiteral->first) != atoms.end()) {
 				cout << "ERROR!" << endl;
 				exit(EXIT_FAILURE);
 			}
 
-			atoms[currLiteral.first] = currLiteral.second;
-			clauses = propagate(clauses, currLiteral); 
+			atoms[currLiteral->first] = currLiteral->second;
+			clauses = propagate(clauses, *currLiteral); 
 			if (clauses.empty())
 				return atoms;
 
-			for (clause currClause : clauses) {
+			for (vector<clause>::iterator currClause = clauses.begin(); currClause != clauses.end();  currClause++) {
 				//if any clause is empty, we failed
-				if (currClause.empty()) {
+				if (currClause->empty()) {
 					return map<string, bool>();
 				}
 			}
