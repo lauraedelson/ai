@@ -31,8 +31,9 @@ atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps) {
 		return currAtoms;
 	}
 
-	for (string child : nodes[node_name].getNeighbors()) {
-		atoms child_atoms = build_atoms(nodes, child, steps - 1);
+	vector<string> neighbors = currNode.getNeighbors();
+	for (vector<string>::iterator child = neighbors.begin(); child != neighbors.end(); child++) {
+		atoms child_atoms = build_atoms(nodes, *child, steps - 1);
 		currAtoms.ats.insert(child_atoms.ats.begin(), child_atoms.ats.end());
 	}
 	return currAtoms;
@@ -41,10 +42,10 @@ atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps) {
 //given a start node and a collection of treasures, build all the atoms
 atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps, vector<string>& treasures) {
 	atoms currAtoms;
-	for (auto treasure : treasures) {
+	for (vector<string>::iterator treasure = treasures.begin(); treasure != treasures.end(); treasure++) {
 		for (size_t step = 0; step <= steps; step++) {
-			currAtoms.availables.push_back(make_pair(treasure, step));
-			currAtoms.hass.push_back(make_pair(treasure, step));
+			currAtoms.availables.push_back(make_pair(*treasure, step));
+			currAtoms.hass.push_back(make_pair(*treasure, step));
 		}
 	}
 
@@ -55,8 +56,9 @@ atoms build_atoms(map<string, Node>& nodes, string node_name, size_t steps, vect
 		return currAtoms;
 	}
 
-	for (auto child : nodes[node_name].getNeighbors()) {
-		atoms child_atoms = build_atoms(nodes, child, steps - 1);
+	vector<string> neighbors = currNode.getNeighbors();
+	for (vector<string>::iterator child = neighbors.begin(); child != neighbors.end(); child++ ) {
+		atoms child_atoms = build_atoms(nodes, *child, steps - 1);
 		currAtoms.ats.insert(child_atoms.ats.begin(), child_atoms.ats.end());
 	}
 	return currAtoms;
@@ -136,16 +138,16 @@ vector<string> tokenize(string input) {
 		//find start node
 		string startNode;
 		string goalNode;
-		for (auto name : nodeNames) {
-			string capsName = name;
+		for (vector<string>::iterator name = nodeNames.begin(); name != nodeNames.end(); name++) {
+			string capsName = *name;
 			for (size_t i = 0; i < capsName.size(); i++) {
 				capsName[i] = toupper(capsName[i]);
 			}
 			if (capsName == "START") {
-				startNode = name;
+				startNode = *name;
 			}
 			if (capsName == "GOAL") {
-				goalNode = name;
+				goalNode = *name;
 			}
 		}
 		atoms all_atoms = build_atoms(nodes, startNode, steps, treasures);
@@ -162,9 +164,9 @@ vector<string> tokenize(string input) {
 			string curr_name = at_vec[i].first;
 			int curr_step = steps - at_vec[i].second;
 			// 1 - can't be in two places at once
-			for (string name : nodeNames) {
-				if (name != curr_name) {
-					vector<pair<string, int>>::iterator at_it = find(at_vec.begin() + i, at_vec.end(), make_pair(name, steps - curr_step));
+			for (vector<string>::iterator name = nodeNames.begin(); name != nodeNames.end(); name++) {
+				if (*name != curr_name) {
+					vector<pair<string, int>>::iterator at_it = find(at_vec.begin() + i, at_vec.end(), make_pair(*name, steps - curr_step));
 					if (at_it != at_vec.end()) {
 						prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)));
 					}
@@ -173,8 +175,9 @@ vector<string> tokenize(string input) {
 
 			//3 - The player must move on edges
 			string statement;
-			for (string neighbor_name : nodes[curr_name].getNeighbors()) {
-				vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(neighbor_name, (steps - curr_step) + 1));
+			vector<string> neighbors = nodes[curr_name].getNeighbors();
+			for (vector<string>::iterator neighbor_name = neighbors.begin(); neighbor_name != neighbors.end(); neighbor_name++) {
+				vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(*neighbor_name, (steps - curr_step) + 1));
 				if (at_it != at_vec.end()) {
 					statement.append(to_string(distance(at_vec.begin(), at_it)) + " ");
 				}
@@ -208,16 +211,16 @@ vector<string> tokenize(string input) {
 				prepositions.insert("-" + to_string(i) + " " + "-" + to_string(distance(avail_vec.begin(), it) + at_vec.size() + has_vec.size()));
 			}
 
-			for (pair<string, Node> curr_node : nodes) {
-				if (curr_node.second.getTolls().find(curr_treasure) != curr_node.second.getTolls().end()) {
+			for (map<string, Node>::iterator curr_node = nodes.begin(); curr_node != nodes.end(); curr_node++) {
+				if (curr_node->second.getTolls().find(curr_treasure) != curr_node->second.getTolls().end()) {
 					//6 - If node N has toll T and the player is at N at time I, then the player no longer has T at time I. 
-					vector<pair<string, int>>::iterator at_now_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node.first, steps - curr_step));
+					vector<pair<string, int>>::iterator at_now_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - curr_step));
 					if (at_now_it != at_vec.end()) {
 						prepositions.insert("-" + to_string(distance(at_vec.begin(), at_now_it)) + " -" + to_string(i));
 					}
 
 					//4 - If node N has toll T and the player is at N at time I+1, then the player must have T at time I
-					vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node.first, steps - (curr_step + 1)));
+					vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 					if (at_it != at_vec.end()) {
 						prepositions.insert("-" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(i));
 					}
@@ -236,9 +239,9 @@ vector<string> tokenize(string input) {
 				}
 
 				//10 - If the player has treasure T at time I and is at node N at time I+1, and N does not require T as a toll, then the player still has T at I+1. 
-				for (pair<string, Node> curr_node : nodes) {
-					if (curr_node.second.getTreasures().find(curr_treasure) != curr_node.second.getTreasures().end()) {
-						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node.first, steps - (curr_step + 1)));
+				for (map<string, Node>::iterator curr_node = nodes.begin(); curr_node != nodes.end(); curr_node++) {
+					if (curr_node->second.getTreasures().find(curr_treasure) != curr_node->second.getTreasures().end()) {
+						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
 							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(distance(has_vec.begin(), has_it) + at_vec.size()));
 						}
@@ -254,9 +257,9 @@ vector<string> tokenize(string input) {
 			//5 -If treasure T is initially at node N and is available at time I and the player is at N at time I+1, then at time I+1 the player has T.
 			vector<pair<string, int>>::iterator has_it = find(has_vec.begin(), has_vec.end(), make_pair(curr_treasure, curr_step + 1));
 			if (has_it != has_vec.end()) {
-				for (pair<string, Node> curr_node : nodes) {
-					if (curr_node.second.getTreasures().find(curr_treasure) != curr_node.second.getTreasures().end()) {
-						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node.first, steps - (curr_step + 1)));
+				for (map<string, Node>::iterator curr_node = nodes.begin(); curr_node != nodes.end(); curr_node++) {
+					if (curr_node->second.getTreasures().find(curr_treasure) != curr_node->second.getTreasures().end()) {
+						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
 							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it )) + " " + to_string(distance(has_vec.begin(), has_it) + at_vec.size()));
 						}
@@ -268,9 +271,10 @@ vector<string> tokenize(string input) {
 			vector<pair<string, int>>::iterator available_it = find(avail_vec.begin(), avail_vec.end(), make_pair(curr_treasure, curr_step + 1));
 			if (available_it != avail_vec.end()) {
 				//7 - If treasure T is available at I, and the player is at node N which is not the home of T at I+1, then T is available at I+1. 
-				for (pair<string, Node> curr_node : nodes) {
-					if (curr_node.second.getTreasures().find(curr_treasure) == curr_node.second.getTreasures().end()) {
-						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node.first, steps - (curr_step + 1)));
+				for (map<string, Node>::iterator curr_node = nodes.begin(); curr_node != nodes.end(); curr_node++) {
+					set<string> currTreasures = curr_node->second.getTreasures();
+					if (currTreasures.find(curr_treasure) == currTreasures.end()) {
+						vector<pair<string, int>>::iterator at_it = find(at_vec.begin(), at_vec.end(), make_pair(curr_node->first, steps - (curr_step + 1)));
 						if (at_it != at_vec.end()) {
 							prepositions.insert("-" + to_string(i) + " -" + to_string(distance(at_vec.begin(), at_it)) + " " + to_string(distance(avail_vec.begin(), available_it) + at_vec.size() + has_vec.size()));
 						}
@@ -292,12 +296,12 @@ vector<string> tokenize(string input) {
 			cout << "Couldn't open output file" << endl;
 			exit(EXIT_FAILURE);
 		}
-		for (string preposition : prepositions) {
-			output << preposition << endl;
+		for (set<string>::iterator preposition = prepositions.begin(); preposition != prepositions.end(); preposition++) {
+			output << *preposition << endl;
 		}
 		output << "Keys:" << endl;
-		for (string key : keys) {
-			output << key << endl;
+		for (vector<string>::iterator key = keys.begin(); key != keys.end(); key++) {
+			output << *key << endl;
 		}
 		output.close();
 	}
