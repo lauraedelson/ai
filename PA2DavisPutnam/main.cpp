@@ -26,12 +26,19 @@ typedef vector<literal> clause;
 vector<clause> propagate(vector<clause> clauses, literal currLiteral) {
 	vector<int> toRemove;
 	for (size_t i = 0; i < clauses.size(); i++) {
-		if (find(clauses[i].begin(), clauses[i].end(), currLiteral) != clauses[i].end()) {
-			toRemove.push_back(i);
+		clause currClause = clauses[i];
+		vector<int> toEdit;
+		for (size_t j = 0; j < clauses[i].size(); j++) {
+			if (clauses[i][j] == currLiteral) {
+				toRemove.push_back(i);
+			}
+			literal opLiteral = make_pair(currLiteral.first, !currLiteral.second);
+			if (clauses[i][j] == opLiteral) {
+				toEdit.push_back(j);
+			}
 		}
-		clause::iterator clause_it = find(clauses[i].begin(), clauses[i].end(), make_pair(currLiteral.first, !currLiteral.second));
-		if (clause_it != clauses[i].end()) {
-			clauses[i].erase(clause_it);
+		for (int j = toEdit.size() - 1; j >= 0; j--) {
+			clauses[i].erase(clauses[i].begin() + toEdit[j]);
 		}
 	}
 	for (int i = toRemove.size() - 1; i >= 0; i--) {
